@@ -19,15 +19,23 @@ RCT_EXPORT_MODULE()
 
 RCT_EXPORT_METHOD(executeJsCode:(NSDictionary *)info result:(RCTResponseSenderBlock)result){
     NSString *path = [info valueForKey:@"path"];
-    NSString *fullPath = [NSString stringWithFormat:@"%@/%@" , NSHomeDirectory(), path];
-    BOOL isExists = [[NSFileManager defaultManager] fileExistsAtPath:fullPath];
-    if (!isExists){
+    NSString *documentPath = [NSString stringWithFormat:@"%@/Documents/%@" , NSHomeDirectory(), path];
+    NSString *sandboxPath = [NSString stringWithFormat:@"%@/%@" , NSHomeDirectory(), path];
+    NSString *filePath = nil;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path]){
+        filePath = path;
+    } else if ([[NSFileManager defaultManager] fileExistsAtPath:documentPath]){
+        filePath = documentPath;
+    } else if ([[NSFileManager defaultManager] fileExistsAtPath:sandboxPath]){
+        filePath = sandboxPath;
+    }
+    if (filePath && filePath.length){
         if (result){
-            result(@[[NSString stringWithFormat:@"no such file: %@", fullPath]]);
+            result(@[[NSString stringWithFormat:@"no such file: %@", filePath]]);
         }
         return;
     }
-    NSData *data = [NSData dataWithContentsOfFile: fullPath];
+    NSData *data = [NSData dataWithContentsOfFile: filePath];
     RCTCxxBridge *cxxBridge = (RCTCxxBridge *)[RCTBridge currentBridge];
     if (!cxxBridge){
         if (result){
