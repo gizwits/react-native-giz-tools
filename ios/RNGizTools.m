@@ -29,9 +29,9 @@ RCT_EXPORT_METHOD(executeJsCode:(NSDictionary *)info result:(RCTResponseSenderBl
     } else if ([[NSFileManager defaultManager] fileExistsAtPath:sandboxPath]){
         filePath = sandboxPath;
     }
-    if (filePath && filePath.length){
+    if (!filePath || !filePath.length){
         if (result){
-            result(@[[NSString stringWithFormat:@"no such file: %@", filePath]]);
+            result(@[[NSString stringWithFormat:@"no such file: %@", path]]);
         }
         return;
     }
